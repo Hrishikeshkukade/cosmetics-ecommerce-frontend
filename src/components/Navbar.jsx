@@ -1,24 +1,77 @@
-import { useState } from 'react';
+// Replace the entire Navbar.jsx with this enhanced version:
+
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User, Menu, X, LogOut, Package, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { productService } from '../services/productService';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const searchRef = useRef(null);
   const { user, logout, isAdmin } = useAuth();
   const { getCartCount, setIsCartOpen } = useCart();
   const navigate = useNavigate();
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearchResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Search products as user types
+  useEffect(() => {
+    const searchProducts = async () => {
+      if (searchQuery.trim().length > 1) {
+        try {
+          const data = await productService.searchProducts({
+            keyword: searchQuery,
+            page: 0,
+            size: 5
+          });
+          setSearchResults(data.content || []);
+          setShowSearchResults(true);
+        } catch (error) {
+          console.error('Search error:', error);
+          setSearchResults([]);
+        }
+      } else {
+        setSearchResults([]);
+        setShowSearchResults(false);
+      }
+    };
+
+    const debounce = setTimeout(() => {
+      searchProducts();
+    }, 300);
+
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/products?search=${searchQuery}`);
       setSearchQuery('');
+      setShowSearchResults(false);
       setIsMenuOpen(false);
     }
+  };
+
+  const handleProductClick = (productId) => {
+    navigate(`/products/${productId}`);
+    setSearchQuery('');
+    setShowSearchResults(false);
   };
 
   return (
@@ -34,7 +87,8 @@ const Navbar = () => {
             </span>
           </Link>
 
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          {/* Desktop Search with Suggestions */}
+          <div className="hidden md:flex flex-1 max-w-md mx-8 relative" ref={searchRef}>
             <form onSubmit={handleSearch} className="w-full">
               <div className="relative">
                 <input
@@ -42,13 +96,50 @@ const Navbar = () => {
                   placeholder="Search for products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchResults.length > 0 && setShowSearchResults(true)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 />
                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
             </form>
+
+            {/* Search Suggestions Dropdown */}
+            {showSearchResults && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-96 overflow-y-auto z-50">
+                {searchResults.map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => handleProductClick(product.id)}
+                    className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b last:border-b-0"
+                  >
+                    <img
+                      src={product.imageUrl || 'https://via.placeholder.com/50'}
+                      alt={product.name}
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                    <div className="flex-1 text-left">
+                      <p className="font-medium text-sm line-clamp-1">{product.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-pink-600 font-bold">₹{product.discountPrice || product.price}</span>
+                        {product.discountPrice && (
+                          <span className="text-xs text-gray-500 line-through">₹{product.price}</span>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-500">{product.category?.name}</span>
+                  </button>
+                ))}
+                <button
+                  onClick={handleSearch}
+                  className="w-full p-3 text-center text-pink-600 hover:bg-pink-50 font-medium"
+                >
+                  View all results for "{searchQuery}"
+                </button>
+              </div>
+            )}
           </div>
 
+          {/* Rest of navbar stays the same... */}
           <div className="hidden md:flex items-center space-x-6">
             <Link to="/products" className="text-gray-700 hover:text-primary-600 font-medium">
               Products
@@ -134,6 +225,7 @@ const Navbar = () => {
           </button>
         </div>
 
+        {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t">
             <form onSubmit={handleSearch} className="mb-4">

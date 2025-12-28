@@ -15,6 +15,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import Profile from './pages/Profile';
+import OrderDetails from './pages/OrderDetails';
 
 function App() {
   return (
@@ -43,14 +46,29 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/orders/:id"
-              element={
-                <ProtectedRoute>
-                  <Orders />
-                </ProtectedRoute>
-              }
-            />
+         
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/*" element={
+              <ProtectedRoute adminOnly>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+       
+            <Route path="/orders/:id" element={
+              <ProtectedRoute>
+                <OrderDetails />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/admin/orders/:id" element={
+              <ProtectedRoute adminOnly>
+                <OrderDetails />
+              </ProtectedRoute>
+            } />
           </Routes>
         </CartProvider>
       </AuthProvider>

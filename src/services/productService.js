@@ -1,6 +1,18 @@
 import api from './api';
 
 export const productService = {
+
+  createProduct: async (productData) => {
+    const response = await api.post('admin/products', productData);
+    return response.data;
+  },
+
+  updateProduct: async(id, productData) => {
+    const response = await api.put(`admin/products/${id}`, productData);
+    return response.data;
+  },
+
+
   getAllProducts: async (page = 0, size = 12) => {
     const response = await api.get(`/products?page=${page}&size=${size}`);
     return response.data;
