@@ -11,6 +11,7 @@ import ProductManagement from './ProductManagement';
 import CategoryManagement from './CategoryManagement';
 import BrandManagement from './BrandManagement';
 import OrderManagement from './OrderManagement';
+import Analytics from './Analytics';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -40,6 +41,7 @@ const AdminDashboard = () => {
     { path: '/admin/categories', icon: BarChart3, label: 'Categories' },
     { path: '/admin/brands', icon: TrendingUp, label: 'Brands' },
     { path: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
+    { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
   ];
 
   return (
@@ -194,6 +196,7 @@ const AdminDashboard = () => {
             <Route path="/categories" element={<CategoryManagement />} />
             <Route path="/brands" element={<BrandManagement />} />
             <Route path="/orders" element={<OrderManagement />} />
+            <Route path="/analytics" element={<Analytics />} />
           </Routes>
         </main>
       </div>

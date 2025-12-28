@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X, LogOut, Package, LayoutDashboard } from 'lucide-react';
+import { Search, ShoppingCart, Heart, User, Menu, X, LogOut, Package, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { productService } from '../services/productService';
+import { useWishlist } from '../context/WishlistContext';
+
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,7 +19,7 @@ const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
   const { getCartCount, setIsCartOpen } = useCart();
   const navigate = useNavigate();
-
+  const { wishlistCount } = useWishlist();
   // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -144,7 +146,7 @@ const Navbar = () => {
             <Link to="/products" className="text-gray-700 hover:text-primary-600 font-medium">
               Products
             </Link>
-            
+
             <button
               onClick={() => setIsCartOpen(true)}
               className="relative p-2 text-gray-700 hover:text-primary-600"
@@ -156,17 +158,30 @@ const Navbar = () => {
                 </span>
               )}
             </button>
+            <Link
+              to="/wishlist"
+              className="relative p-2 text-gray-700 hover:text-primary-600"
+            >
+              <Heart className="h-6 w-6" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
 
+
+           
             {user ? (
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center space-x-2 text-gray-700 hover:text-primary-600"
                 >
                   <User className="h-6 w-6" />
                   <span className="font-medium">{user.username}</span>
                 </button>
-                
+
                 {showUserMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
                     <Link
@@ -240,35 +255,42 @@ const Navbar = () => {
                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
             </form>
-            
+
             <div className="space-y-2">
-              <Link 
-                to="/products" 
+              <Link
+                to="/products"
                 onClick={() => setIsMenuOpen(false)}
                 className="block py-2 text-gray-700 hover:text-primary-600"
               >
                 Products
               </Link>
-              
+             <Link
+              to="/wishlist"
+              onClick={() => setIsMenuOpen(false)}
+              className="block py-2 text-gray-700 hover:text-primary-600 flex items-center gap-2"
+            >
+              <Heart className="h-5 w-5" />
+              Wishlist ({wishlistCount})
+            </Link>
               {user ? (
                 <>
-                  <Link 
-                    to="/profile" 
+                  <Link
+                    to="/profile"
                     onClick={() => setIsMenuOpen(false)}
                     className="block py-2 text-gray-700 hover:text-primary-600"
                   >
                     My Profile
                   </Link>
-                  <Link 
-                    to="/orders" 
+                  <Link
+                    to="/orders"
                     onClick={() => setIsMenuOpen(false)}
                     className="block py-2 text-gray-700 hover:text-primary-600"
                   >
                     My Orders
                   </Link>
                   {isAdmin() && (
-                    <Link 
-                      to="/admin" 
+                    <Link
+                      to="/admin"
                       onClick={() => setIsMenuOpen(false)}
                       className="block py-2 text-gray-700 hover:text-primary-600"
                     >
@@ -287,15 +309,15 @@ const Navbar = () => {
                 </>
               ) : (
                 <>
-                  <Link 
-                    to="/login" 
+                  <Link
+                    to="/login"
                     onClick={() => setIsMenuOpen(false)}
                     className="block py-2 text-gray-700 hover:text-primary-600"
                   >
                     Login
                   </Link>
-                  <Link 
-                    to="/register" 
+                  <Link
+                    to="/register"
                     onClick={() => setIsMenuOpen(false)}
                     className="block py-2 text-primary-600 font-medium"
                   >
