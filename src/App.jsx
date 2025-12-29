@@ -20,6 +20,7 @@ import Profile from './pages/Profile';
 import OrderDetails from './pages/OrderDetails';
 import { WishlistProvider } from './context/WishlistContext';
 import Wishlist from './pages/Wishlist';
+import ChatWidget from './components/ChatWidget';
 
 function App() {
   return (
@@ -79,6 +80,7 @@ function App() {
               } />
             </Routes>
           </CartProvider>
+          <ChatWidget />
         </WishlistProvider>
       </AuthProvider>
     </BrowserRouter>

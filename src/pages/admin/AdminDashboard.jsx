@@ -3,7 +3,7 @@ import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Package, ShoppingBag, Users, 
   TrendingUp, DollarSign, AlertCircle, Plus, 
-  BarChart3, LogOut, Menu, X 
+  BarChart3, LogOut, Menu, X, MessageCircle 
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { orderService } from '../../services/orderService';
@@ -12,6 +12,7 @@ import CategoryManagement from './CategoryManagement';
 import BrandManagement from './BrandManagement';
 import OrderManagement from './OrderManagement';
 import Analytics from './Analytics';
+import ChatSupport from './ChatSupport';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -42,6 +43,7 @@ const AdminDashboard = () => {
     { path: '/admin/brands', icon: TrendingUp, label: 'Brands' },
     { path: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
     { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
+    { path: '/admin/chat', icon: MessageCircle, label: 'Chat Support' },
   ];
 
   return (
@@ -197,6 +199,7 @@ const AdminDashboard = () => {
             <Route path="/brands" element={<BrandManagement />} />
             <Route path="/orders" element={<OrderManagement />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/chat" element={<ChatSupport />} />
           </Routes>
         </main>
       </div>
