@@ -1,5 +1,3 @@
-// Replace the entire Navbar.jsx with this enhanced version:
-
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, Heart, User, Menu, X, LogOut, Package, LayoutDashboard } from 'lucide-react';
@@ -272,6 +270,17 @@ const Navbar = () => {
               <Heart className="h-5 w-5" />
               Wishlist ({wishlistCount})
             </Link>
+               <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2 text-gray-700 hover:text-primary-600"
+            >
+              <ShoppingCart className="h-6 w-6" />
+              {getCartCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {getCartCount()}
+                </span>
+              )}
+            </button>
               {user ? (
                 <>
                   <Link
