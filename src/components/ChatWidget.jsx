@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
-const ChatWidget = () => {
+const ChatbotWidget = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -39,6 +39,23 @@ const ChatWidget = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const extractOrderIdentifier = (input) => {
+    if (!input) return null;
+
+   
+    const cleaned = input.trim().replace(/^#/, '');
+
+    
+    if (cleaned.toUpperCase().startsWith('ORD')) {
+      return cleaned;
+    }
+
+    
+    const digits = cleaned.match(/\d+/);
+    return digits ? digits[0] : null;
+  };
+
+
   const addBotMessage = (text, type = 'text', data = null) => {
     setIsTyping(true);
     setTimeout(() => {
@@ -65,27 +82,42 @@ const ChatWidget = () => {
 
   const fetchMyOrders = async () => {
     try {
-      const response = await api.get(`/orders/user/${user.id}`);
-      if (response.data && response.data.length > 0) {
-        addBotMessage("Here are your recent orders:", 'orders', response.data.slice(0, 5));
+      // Use my-orders endpoint with pagination
+      const response = await api.get(`/orders/my-orders?page=0&size=10`);
+      if (response.data && response.data.content && response.data.content.length > 0) {
+        addBotMessage("Here are your recent orders:", 'orders', response.data.content.slice(0, 5));
       } else {
         addBotMessage("You don't have any orders yet. Would you like to browse our products?");
       }
     } catch (error) {
+      console.error('Error fetching orders:', error);
       addBotMessage("Sorry, I couldn't fetch your orders. Please try again later.");
     }
   };
 
-  const trackOrder = async (orderNumber) => {
+  const trackOrder = async (orderIdentifier) => {
     try {
-      const response = await api.get(`/orders/order-number/${orderNumber}`);
+     
+      const isOrderNumber = orderIdentifier.toString().includes('ORD') || isNaN(orderIdentifier);
+      const endpoint = isOrderNumber
+        ? `/orders/order-number/${orderIdentifier}`
+        : `/orders/${orderIdentifier}`;
+
+      const response = await api.get(endpoint);
       if (response.data) {
         addBotMessage("Here's your order status:", 'order-detail', response.data);
       } else {
-        addBotMessage(`Sorry, I couldn't find order #${orderId}. Please check the order number.`);
+        addBotMessage(`Sorry, I couldn't find order ${orderIdentifier}. Please check the order number.`);
       }
     } catch (error) {
-      addBotMessage(`Order #${orderId} not found. Please verify your order number.`);
+      console.error('Error tracking order:', error);
+      if (error.response?.status === 404) {
+        addBotMessage(`Order ${orderIdentifier} not found. Please verify your order number.`);
+      } else if (error.response?.status === 403) {
+        addBotMessage("You don't have permission to view this order.");
+      } else {
+        addBotMessage("Sorry, I couldn't fetch order details. Please try again.");
+      }
     }
   };
 
@@ -117,10 +149,10 @@ const ChatWidget = () => {
     addUserMessage(option.label);
     setShowOptions(false);
 
-    switch(option.id) {
+    switch (option.id) {
       case 'track':
         setWaitingFor('order');
-        addBotMessage("Please enter your order number (e.g., 1, 2, 3...)");
+        addBotMessage("Please enter your order number (e.g., ORD1767010881241 or just the ID like 1, 2, 3...)");
         break;
       case 'myorders':
         fetchMyOrders();
@@ -154,13 +186,14 @@ const ChatWidget = () => {
     setShowOptions(false);
 
     if (waitingFor === 'order') {
-      const orderId = parseInt(userInput);
-      if (!isNaN(orderId)) {
+      const orderIdentifier = extractOrderIdentifier(userInput);
+
+      if (orderIdentifier) {
         setWaitingFor(null);
-        await trackOrder(orderId);
+        await trackOrder(orderIdentifier);
         setTimeout(() => setShowOptions(true), 1500);
       } else {
-        addBotMessage("Please enter a valid order number (numbers only).");
+        addBotMessage("Please enter a valid order number (e.g. ORD1767010881241 or 1, 2, 3)");
       }
       return;
     }
@@ -177,11 +210,10 @@ const ChatWidget = () => {
       return;
     }
 
-    const lowerMsg = userInput.toLowerCase();
+    const extracted = extractOrderIdentifier(userInput);
 
-    if (lowerMsg.match(/order\s*#?\d+/) || lowerMsg.match(/^\d+$/)) {
-      const orderNum = userInput.match(/\d+/)[0];
-      await trackOrder(parseInt(orderNum));
+    if (extracted) {
+      await trackOrder(extracted);
       setTimeout(() => setShowOptions(true), 1500);
     } else if (lowerMsg.includes('track') || lowerMsg.includes('status')) {
       setWaitingFor('order');
@@ -230,13 +262,16 @@ const ChatWidget = () => {
           {msg.data.map(order => (
             <div key={order.id} className="bg-gray-50 p-3 rounded-lg border">
               <div className="flex justify-between items-start mb-2">
-                <span className="font-semibold text-sm">Order #{order.id}</span>
+                <span className="font-semibold text-sm">{order.orderNumber || `Order #${order.id}`}</span>
                 {getOrderStatusBadge(order.status)}
               </div>
               <p className="text-xs text-gray-600">₹{order.totalAmount}</p>
               <p className="text-xs text-gray-500">{new Date(order.orderDate).toLocaleDateString()}</p>
-              <button 
-                onClick={() => trackOrder(order.id)}
+              <button
+                onClick={() => {
+                  const orderNum = order.orderNumber || order.id;
+                  trackOrder(orderNum);
+                }}
                 className="text-xs text-pink-600 font-medium mt-2 hover:underline"
               >
                 Track Order →
@@ -255,7 +290,7 @@ const ChatWidget = () => {
           <div className="bg-gradient-to-r from-pink-50 to-rose-50 p-4 rounded-lg border border-pink-200">
             <div className="flex justify-between items-start mb-3">
               <div>
-                <h4 className="font-bold text-base">Order #{order.id}</h4>
+                <h4 className="font-bold text-base">Order {order.orderNumber || `#${order.id}`}</h4>
                 <p className="text-xs text-gray-600">{new Date(order.orderDate).toLocaleString()}</p>
               </div>
               {getOrderStatusBadge(order.status)}
@@ -317,7 +352,7 @@ const ChatWidget = () => {
                     <p className="text-xs text-gray-600 line-clamp-2">{product.description}</p>
                     <div className="flex justify-between items-center mt-2">
                       <span className="font-bold text-pink-600">₹{product.price}</span>
-                      <button 
+                      <button
                         onClick={() => navigate(`/products/${product.id}`)}
                         className="text-xs text-pink-600 font-medium hover:underline flex items-center gap-1"
                       >
@@ -435,8 +470,8 @@ const ChatWidget = () => {
                 <div className="bg-white px-4 py-3 rounded-2xl border">
                   <div className="flex gap-1">
                     <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
                   </div>
                 </div>
               </div>
@@ -483,4 +518,4 @@ const ChatWidget = () => {
   );
 };
 
-export default ChatWidget;
+export default ChatbotWidget;
