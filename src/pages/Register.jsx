@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Phone, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
+import CartDrawer from '../components/CartDrawer';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -37,6 +38,7 @@ const Register = () => {
   return (
     <>
       <Navbar />
+      <CartDrawer />
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-rose-50 py-12 px-4">
         <div className="max-w-2xl w-full">
           <div className="bg-white rounded-2xl shadow-xl p-8">

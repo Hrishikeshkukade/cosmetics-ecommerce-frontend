@@ -13,6 +13,7 @@ import BrandManagement from './BrandManagement';
 import OrderManagement from './OrderManagement';
 import Analytics from './Analytics';
 import ChatSupport from './ChatSupport';
+import UserManagement from './UserManagement';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -44,6 +45,7 @@ const AdminDashboard = () => {
     { path: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
     { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
     { path: '/admin/chat', icon: MessageCircle, label: 'Chat Support' },
+    { path: '/admin/users', icon: Users, label: 'User Management' },
   ];
 
   return (
@@ -200,6 +202,7 @@ const AdminDashboard = () => {
             <Route path="/orders" element={<OrderManagement />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/chat" element={<ChatSupport />} />
+            <Route path="/users" element={<UserManagement />} />
           </Routes>
         </main>
       </div>

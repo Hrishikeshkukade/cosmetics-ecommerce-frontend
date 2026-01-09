@@ -25,6 +25,12 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const data = await authService.login(credentials);
+
+      if (data.approvalRequired) {
+      setError(data.message);
+      setLoading(false);
+      return;
+    }
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data));
       setUser(data);
@@ -40,6 +46,12 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const data = await authService.register(userData);
+
+      if (data.approvalRequired) {
+      alert(data.message);
+      navigate('/login');
+      return;
+    }
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data));
       setUser(data);
