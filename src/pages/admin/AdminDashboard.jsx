@@ -3,7 +3,7 @@ import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Package, ShoppingBag, Users, 
   TrendingUp, DollarSign, AlertCircle, Plus, 
-  BarChart3, LogOut, Menu, X, MessageCircle 
+  BarChart3, LogOut, Menu, X, MessageCircle, Upload 
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { orderService } from '../../services/orderService';
@@ -14,6 +14,7 @@ import OrderManagement from './OrderManagement';
 import Analytics from './Analytics';
 import ChatSupport from './ChatSupport';
 import UserManagement from './UserManagement';
+import BulkUpload from './BulkUpload';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -46,6 +47,7 @@ const AdminDashboard = () => {
     { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
     { path: '/admin/chat', icon: MessageCircle, label: 'Chat Support' },
     { path: '/admin/users', icon: Users, label: 'User Management' },
+    { path: '/admin/bulk-upload', icon: Upload, label: 'Bulk Upload' },
   ];
 
   return (
@@ -203,6 +205,7 @@ const AdminDashboard = () => {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/chat" element={<ChatSupport />} />
             <Route path="/users" element={<UserManagement />} />
+            <Route path="/bulk-upload" element={<BulkUpload />} />
           </Routes>
         </main>
       </div>
