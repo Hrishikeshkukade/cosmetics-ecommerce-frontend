@@ -116,7 +116,12 @@ const OrderManagement = () => {
                 </div>
                    <Link
                   to={`/admin/orders/${order.id}`}
-                  className="btn-secondary"
+                  className="btn-secondary text-center 
+           w-full sm:w-auto
+           text-xs sm:text-sm
+           py-2 sm:py-2.5
+           px-3 sm:px-4"
+
                 >
                   View Full Details
                 </Link>

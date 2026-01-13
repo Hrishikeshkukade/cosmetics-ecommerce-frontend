@@ -65,17 +65,14 @@ const Profile = () => {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
-    
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       alert('New passwords do not match!');
       return;
     }
-
     if (passwordData.newPassword.length < 6) {
       alert('Password must be at least 6 characters!');
       return;
     }
-
     setLoading(true);
     try {
       await authService.changePassword({
@@ -96,13 +93,12 @@ const Profile = () => {
   return (
     <>
       <Navbar />
-      
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
           {/* Header */}
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 sm:gap-0">
             <h1 className="text-3xl font-bold">My Profile</h1>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => setShowPasswordModal(true)}
                 className="btn-secondary flex items-center gap-2"
@@ -130,23 +126,23 @@ const Profile = () => {
           </div>
 
           {/* Profile Header */}
-          <div className="flex items-center gap-6 mb-8 pb-8 border-b">
-            <div className="w-24 h-24 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 pb-8 border-b">
+            <div className="w-24 h-24 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center flex-shrink-0">
               <User className="h-12 w-12 text-white" />
             </div>
-            <div>
-              <h2 className="text-2xl font-bold">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl font-bold truncate">
                 {user?.firstName} {user?.lastName}
               </h2>
-              <p className="text-gray-600 flex items-center gap-2 mt-1">
+              <p className="text-gray-600 flex items-center gap-2 mt-1 truncate">
                 <Mail className="h-4 w-4" />
                 {user?.email}
               </p>
-              <p className="text-gray-600 flex items-center gap-2 mt-1">
+              <p className="text-gray-600 flex items-center gap-2 mt-1 truncate">
                 <User className="h-4 w-4" />
                 @{user?.username}
               </p>
-              <span className="inline-block mt-3 px-4 py-1 bg-pink-100 text-pink-600 rounded-full text-sm font-semibold">
+              <span className="inline-block mt-3 px-4 py-1 bg-pink-100 text-pink-600 rounded-full text-sm font-semibold truncate">
                 {user?.role}
               </span>
             </div>
@@ -154,9 +150,9 @@ const Profile = () => {
 
           {/* Profile Form */}
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {/* Personal Information */}
-              <div className="md:col-span-2">
+              <div className="sm:col-span-2">
                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <User className="h-5 w-5 text-pink-600" />
                   Personal Information
@@ -169,7 +165,7 @@ const Profile = () => {
                   type="text"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   disabled={!editing}
                 />
               </div>
@@ -180,7 +176,7 @@ const Profile = () => {
                   type="text"
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   disabled={!editing}
                 />
               </div>
@@ -193,7 +189,7 @@ const Profile = () => {
                     type="tel"
                     value={formData.phoneNumber}
                     onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                    className="input-field pl-10"
+                    className="input-field pl-10 w-full"
                     disabled={!editing}
                   />
                 </div>
@@ -206,27 +202,27 @@ const Profile = () => {
                   <input
                     type="email"
                     value={user?.email}
-                    className="input-field pl-10 bg-gray-100"
+                    className="input-field pl-10 bg-gray-100 w-full"
                     disabled
                   />
                 </div>
               </div>
 
               {/* Address Information */}
-              <div className="md:col-span-2 mt-6">
+              <div className="sm:col-span-2 mt-6">
                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-pink-600" />
                   Address Information
                 </h3>
               </div>
 
-              <div className="md:col-span-2">
+              <div className="sm:col-span-2">
                 <label className="block text-sm font-medium mb-2">Street Address</label>
                 <input
                   type="text"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   placeholder="Enter your street address"
                   disabled={!editing}
                 />
@@ -238,7 +234,7 @@ const Profile = () => {
                   type="text"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   placeholder="Enter city"
                   disabled={!editing}
                 />
@@ -250,7 +246,7 @@ const Profile = () => {
                   type="text"
                   value={formData.state}
                   onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   placeholder="Enter state"
                   disabled={!editing}
                 />
@@ -262,7 +258,7 @@ const Profile = () => {
                   type="text"
                   value={formData.zipCode}
                   onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   placeholder="Enter ZIP code"
                   disabled={!editing}
                 />
@@ -274,7 +270,7 @@ const Profile = () => {
                   type="text"
                   value={formData.country}
                   onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   placeholder="Enter country"
                   disabled={!editing}
                 />
@@ -282,12 +278,8 @@ const Profile = () => {
             </div>
 
             {editing && (
-              <div className="flex gap-4 mt-8">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 btn-primary"
-                >
+              <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                <button type="submit" disabled={loading} className="flex-1 btn-primary w-full sm:w-auto">
                   {loading ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
@@ -296,7 +288,7 @@ const Profile = () => {
                     setEditing(false);
                     loadProfile();
                   }}
-                  className="flex-1 btn-secondary"
+                  className="flex-1 btn-secondary w-full sm:w-auto"
                 >
                   Cancel
                 </button>
@@ -312,7 +304,7 @@ const Profile = () => {
           <div className="bg-white rounded-xl max-w-md w-full p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold">Change Password</h3>
-              <button 
+              <button
                 onClick={() => {
                   setShowPasswordModal(false);
                   setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -331,7 +323,7 @@ const Profile = () => {
                   type="password"
                   value={passwordData.currentPassword}
                   onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   required
                   placeholder="Enter current password"
                 />
@@ -343,7 +335,7 @@ const Profile = () => {
                   type="password"
                   value={passwordData.newPassword}
                   onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   required
                   minLength="6"
                   placeholder="Enter new password (min 6 characters)"
@@ -356,18 +348,14 @@ const Profile = () => {
                   type="password"
                   value={passwordData.confirmPassword}
                   onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   required
                   placeholder="Confirm new password"
                 />
               </div>
 
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 btn-primary"
-                >
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <button type="submit" disabled={loading} className="flex-1 btn-primary w-full sm:w-auto">
                   {loading ? 'Changing...' : 'Change Password'}
                 </button>
                 <button
@@ -376,7 +364,7 @@ const Profile = () => {
                     setShowPasswordModal(false);
                     setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
                   }}
-                  className="flex-1 btn-secondary"
+                  className="flex-1 btn-secondary w-full sm:w-auto"
                 >
                   Cancel
                 </button>

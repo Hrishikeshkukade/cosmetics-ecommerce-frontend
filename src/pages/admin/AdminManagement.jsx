@@ -71,7 +71,7 @@ const AdminManagement = () => {
     setFormData({
       username: admin.username,
       email: admin.email,
-      password: '', // Don't show existing password
+      password: '',
       firstName: admin.firstName,
       lastName: admin.lastName,
       phoneNumber: admin.phoneNumber || '',
@@ -102,7 +102,8 @@ const AdminManagement = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
           <h2 className="text-2xl font-bold mb-2">Admin Management</h2>
           <p className="text-gray-600">Manage administrator accounts</p>
@@ -130,8 +131,8 @@ const AdminManagement = () => {
         </div>
       </div>
 
-      {/* Admins Table */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      {/* Desktop Table */}
+      <div className="hidden md:block bg-white rounded-xl shadow-md overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -198,20 +199,62 @@ const AdminManagement = () => {
         </table>
       </div>
 
+      {/* Mobile Card Layout */}
+      <div className="md:hidden flex flex-col gap-4">
+        {admins.map((admin) => (
+          <div key={admin.id} className="bg-white p-4 rounded-xl shadow-md flex flex-col gap-2">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
+                  {admin.firstName?.charAt(0)}{admin.lastName?.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-medium">{admin.username}</p>
+                  <p className="text-sm text-gray-500">{admin.firstName} {admin.lastName}</p>
+                  {admin.id === user.id && (
+                    <span className="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">You</span>
+                  )}
+                </div>
+              </div>
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                Active
+              </span>
+            </div>
+            <p className="text-sm">{admin.email}</p>
+            <p className="text-sm text-gray-500">{admin.phoneNumber || 'N/A'}</p>
+            <p className="text-sm text-gray-600">Created: {new Date(admin.createdAt).toLocaleDateString()}</p>
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => openEditModal(admin)}
+                className="flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded flex justify-center"
+              >
+                <Edit className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => handleDelete(admin.id)}
+                disabled={admin.id === user.id}
+                className="flex-1 p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed flex justify-center"
+              >
+                <Trash2 className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Create/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full p-6">
+          <div className="bg-white rounded-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold">
-                {editingAdmin ? 'Edit Admin' : 'Create New Admin'}
-              </h3>
+              <h3 className="text-xl font-bold">{editingAdmin ? 'Edit Admin' : 'Create New Admin'}</h3>
               <button onClick={() => setShowModal(false)}>
                 <X className="h-6 w-6" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+             
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Username*</label>
@@ -223,9 +266,7 @@ const AdminManagement = () => {
                     required
                     disabled={editingAdmin !== null}
                   />
-                  {editingAdmin && (
-                    <p className="text-xs text-gray-500 mt-1">Username cannot be changed</p>
-                  )}
+                  {editingAdmin && <p className="text-xs text-gray-500 mt-1">Username cannot be changed</p>}
                 </div>
 
                 <div>
@@ -293,11 +334,7 @@ const AdminManagement = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
+                    {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
@@ -305,7 +342,7 @@ const AdminManagement = () => {
                 </p>
               </div>
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-4 pt-4 flex-col sm:flex-row">
                 <button type="submit" className="flex-1 btn-primary">
                   {editingAdmin ? 'Update Admin' : 'Create Admin'}
                 </button>

@@ -41,20 +41,13 @@ const ChatbotWidget = () => {
 
   const extractOrderIdentifier = (input) => {
     if (!input) return null;
-
-   
     const cleaned = input.trim().replace(/^#/, '');
-
-    
     if (cleaned.toUpperCase().startsWith('ORD')) {
       return cleaned;
     }
-
-    
     const digits = cleaned.match(/\d+/);
     return digits ? digits[0] : null;
   };
-
 
   const addBotMessage = (text, type = 'text', data = null) => {
     setIsTyping(true);
@@ -82,7 +75,6 @@ const ChatbotWidget = () => {
 
   const fetchMyOrders = async () => {
     try {
-      // Use my-orders endpoint with pagination
       const response = await api.get(`/orders/my-orders?page=0&size=10`);
       if (response.data && response.data.content && response.data.content.length > 0) {
         addBotMessage("Here are your recent orders:", 'orders', response.data.content.slice(0, 5));
@@ -97,12 +89,10 @@ const ChatbotWidget = () => {
 
   const trackOrder = async (orderIdentifier) => {
     try {
-     
       const isOrderNumber = orderIdentifier.toString().includes('ORD') || isNaN(orderIdentifier);
       const endpoint = isOrderNumber
         ? `/orders/order-number/${orderIdentifier}`
         : `/orders/${orderIdentifier}`;
-
       const response = await api.get(endpoint);
       if (response.data) {
         addBotMessage("Here's your order status:", 'order-detail', response.data);
@@ -148,7 +138,6 @@ const ChatbotWidget = () => {
   const handleOptionClick = (option) => {
     addUserMessage(option.label);
     setShowOptions(false);
-
     switch (option.id) {
       case 'track':
         setWaitingFor('order');
@@ -179,7 +168,6 @@ const ChatbotWidget = () => {
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
-
     const userInput = inputMessage.trim();
     addUserMessage(userInput);
     setInputMessage('');
@@ -187,7 +175,6 @@ const ChatbotWidget = () => {
 
     if (waitingFor === 'order') {
       const orderIdentifier = extractOrderIdentifier(userInput);
-
       if (orderIdentifier) {
         setWaitingFor(null);
         await trackOrder(orderIdentifier);
@@ -208,31 +195,6 @@ const ChatbotWidget = () => {
         addBotMessage("Please enter a valid order number.");
       }
       return;
-    }
-
-    const extracted = extractOrderIdentifier(userInput);
-
-    if (extracted) {
-      await trackOrder(extracted);
-      setTimeout(() => setShowOptions(true), 1500);
-    } else if (lowerMsg.includes('track') || lowerMsg.includes('status')) {
-      setWaitingFor('order');
-      addBotMessage("Please enter your order number.");
-    } else if (lowerMsg.includes('my order')) {
-      fetchMyOrders();
-      setTimeout(() => setShowOptions(true), 1500);
-    } else if (lowerMsg.includes('product') || lowerMsg.includes('buy') || lowerMsg.includes('shop')) {
-      fetchCategories();
-      setTimeout(() => setShowOptions(true), 1500);
-    } else if (lowerMsg.includes('offer') || lowerMsg.includes('discount')) {
-      addBotMessage("🎉 Use code BEAUTY50 for 50% OFF! Check current offers for more deals.");
-      setTimeout(() => setShowOptions(true), 1000);
-    } else if (lowerMsg.includes('return') || lowerMsg.includes('refund')) {
-      addBotMessage("I can help with returns. Please provide your order number.");
-      setWaitingFor('return-order');
-    } else {
-      addBotMessage("I can help you:\n• Track orders\n• View orders\n• Browse products\n• Check offers\n• Process returns");
-      setTimeout(() => setShowOptions(true), 1000);
     }
   };
 
@@ -255,12 +217,13 @@ const ChatbotWidget = () => {
   };
 
   const renderMessage = (msg) => {
+
     if (msg.messageType === 'orders' && msg.data) {
       return (
         <div className="space-y-2">
           <p className="text-sm font-medium mb-3">{msg.text}</p>
           {msg.data.map(order => (
-            <div key={order.id} className="bg-gray-50 p-3 rounded-lg border">
+            <div key={order.id} className="bg-gray-50 p-3 rounded-lg border max-w-full">
               <div className="flex justify-between items-start mb-2">
                 <span className="font-semibold text-sm">{order.orderNumber || `Order #${order.id}`}</span>
                 {getOrderStatusBadge(order.status)}
@@ -282,12 +245,13 @@ const ChatbotWidget = () => {
       );
     }
 
+
     if (msg.messageType === 'order-detail' && msg.data) {
       const order = msg.data;
       return (
         <div className="space-y-3">
           <p className="text-sm font-medium mb-2">{msg.text}</p>
-          <div className="bg-gradient-to-r from-pink-50 to-rose-50 p-4 rounded-lg border border-pink-200">
+          <div className="bg-gradient-to-r from-pink-50 to-rose-50 p-4 rounded-lg border border-pink-200 max-w-full">
             <div className="flex justify-between items-start mb-3">
               <div>
                 <h4 className="font-bold text-base">Order {order.orderNumber || `#${order.id}`}</h4>
@@ -316,7 +280,7 @@ const ChatbotWidget = () => {
       return (
         <div className="space-y-2">
           <p className="text-sm font-medium mb-3">{msg.text}</p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {msg.data.map(category => (
               <button
                 key={category.id}
@@ -342,7 +306,7 @@ const ChatbotWidget = () => {
           <p className="text-sm font-medium mb-3">{msg.text}</p>
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {msg.data.map(product => (
-              <div key={product.id} className="bg-white p-3 rounded-lg border hover:border-pink-300 transition-colors">
+              <div key={product.id} className="bg-white p-3 rounded-lg border hover:border-pink-300 transition-colors max-w-full">
                 <div className="flex gap-3">
                   {product.imageUrl && (
                     <img src={product.imageUrl} alt={product.name} className="w-16 h-16 object-cover rounded" />
@@ -368,52 +332,10 @@ const ChatbotWidget = () => {
       );
     }
 
-    return <p className="text-sm whitespace-pre-line leading-relaxed">{msg.text}</p>;
+    return <p className="text-sm whitespace-pre-line leading-relaxed break-words">{msg.text}</p>;
   };
 
-  if (!isAuthenticated) {
-    if (!isOpen) {
-      return (
-        <button onClick={() => setIsOpen(true)} className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all z-50">
-          <MessageCircle className="h-7 w-7 text-white" />
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse"></span>
-        </button>
-      );
-    }
-    return (
-      <div className="fixed bottom-6 right-6 w-[420px] bg-white rounded-2xl shadow-2xl z-50 h-[400px] flex flex-col">
-        <div className="bg-gradient-to-r from-pink-500 to-rose-600 text-white p-4 rounded-t-2xl flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <MessageCircle className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="font-bold">Beauty Assistant</h3>
-              <p className="text-xs">Login Required</p>
-            </div>
-          </div>
-          <button onClick={() => setIsOpen(false)} className="hover:bg-white/20 p-2 rounded-lg">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mb-6">
-            <LogIn className="h-10 w-10 text-pink-600" />
-          </div>
-          <h3 className="text-2xl font-bold mb-3">Login Required</h3>
-          <p className="text-gray-600 mb-6">Please login to access our AI assistant!</p>
-          <button onClick={() => navigate('/login')} className="bg-gradient-to-r from-pink-600 to-rose-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg flex items-center gap-2">
-            <LogIn className="h-5 w-5" />
-            Login Now
-          </button>
-          <p className="text-sm text-gray-500 mt-4">
-            Don't have an account? <button onClick={() => navigate('/register')} className="text-pink-600 font-semibold hover:underline">Sign up</button>
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+  // Mobile-safe open button
   if (!isOpen) {
     return (
       <button onClick={() => setIsOpen(true)} className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all z-50">
@@ -423,8 +345,10 @@ const ChatbotWidget = () => {
     );
   }
 
+  // Main chatbot container, responsive for small screens
   return (
-    <div className={`fixed bottom-6 right-6 w-[420px] bg-white rounded-2xl shadow-2xl z-50 flex flex-col ${isMinimized ? 'h-16' : 'h-[600px]'}`}>
+    <div className={`fixed bottom-6 right-3 w-[calc(100%-1rem)] sm:w-[420px] max-w-[100vw] bg-white rounded-2xl shadow-2xl z-50 flex flex-col ${isMinimized ? 'h-16' : 'h-[80vh] sm:h-[600px]'}`}>
+
       <div className="bg-gradient-to-r from-pink-500 to-rose-600 text-white p-4 rounded-t-2xl flex justify-between items-center">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -456,61 +380,49 @@ const ChatbotWidget = () => {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-white">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] px-4 py-3 rounded-2xl shadow-sm ${msg.type === 'user' ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-br-none' : 'bg-white text-gray-800 rounded-bl-none border'}`}>
+                <div className={`max-w-full sm:max-w-[85%] px-4 py-3 rounded-2xl shadow-sm ${msg.type === 'user' ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white' : 'bg-gray-100 text-gray-800'}`}>
                   {renderMessage(msg)}
-                  <p className={`text-xs mt-2 ${msg.type === 'user' ? 'text-pink-100' : 'text-gray-400'}`}>
-                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
                 </div>
               </div>
             ))}
-
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-white px-4 py-3 rounded-2xl border">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-                  </div>
+                <div className="bg-gray-100 text-gray-800 max-w-[50%] px-4 py-3 rounded-2xl shadow-sm">
+                  <span className="animate-pulse">Typing...</span>
                 </div>
               </div>
             )}
-
-            {showOptions && !isTyping && (
-              <div className="space-y-3">
-                <p className="text-xs font-semibold text-gray-500 text-center">Quick Actions</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {quickOptions.map((option) => {
-                    const Icon = option.icon;
-                    return (
-                      <button key={option.id} onClick={() => handleOptionClick(option)} className={`bg-gradient-to-r ${option.color} text-white p-3 rounded-xl hover:shadow-lg transition-all hover:scale-105 group`}>
-                        <Icon className="h-5 w-5 mx-auto mb-1 group-hover:scale-110 transition-transform" />
-                        <span className="text-xs font-medium">{option.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef}></div>
           </div>
 
-          <div className="p-4 border-t rounded-b-2xl">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
-                placeholder={waitingFor ? "Type your answer..." : "Type your message..."}
-                className="flex-1 px-4 py-3 border rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-              <button onClick={handleSendMessage} disabled={!inputMessage.trim()} className="bg-gradient-to-r from-pink-600 to-rose-600 text-white px-5 py-3 rounded-full hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105">
-                <Send className="h-5 w-5" />
-              </button>
+          {showOptions && (
+            <div className="p-3 border-t border-gray-200 flex flex-wrap gap-2 justify-center sm:justify-start overflow-x-auto">
+              {quickOptions.map(option => {
+                const Icon = option.icon;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => handleOptionClick(option)}
+                    className={`flex items-center gap-1 px-3 py-2 rounded-lg text-white bg-gradient-to-r ${option.color} hover:scale-105 transition-all text-xs sm:text-sm whitespace-nowrap flex-shrink-0`}
+                  >
+                    <Icon className="h-3 w-3 sm:h-4 sm:w-4" /> {option.label}
+                  </button>
+                );
+              })}
             </div>
-            <p className="text-xs text-gray-400 text-center mt-2">Powered by AI • Real-time data</p>
+          )}
+
+          <div className="flex p-3 border-t border-gray-200 gap-2">
+            <input
+              value={inputMessage}
+              onChange={e => setInputMessage(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+              className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              placeholder="Type a message..."
+            />
+            <button onClick={handleSendMessage} className="p-2 rounded-full bg-pink-500 hover:bg-rose-500 text-white">
+              <Send className="h-4 w-4" />
+            </button>
           </div>
         </>
       )}

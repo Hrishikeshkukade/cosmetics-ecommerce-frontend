@@ -42,14 +42,12 @@ const UserManagement = () => {
   const filterUsers = () => {
     let filtered = users;
 
-    // Filter by status
     if (filter !== 'all') {
       filtered = filtered.filter(user => 
         user.accountStatus.toLowerCase() === filter.toLowerCase()
       );
     }
 
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(user =>
         user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -139,7 +137,7 @@ const UserManagement = () => {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white p-6 rounded-xl shadow-md">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-gray-600 font-medium">Total Users</h3>
@@ -176,8 +174,7 @@ const UserManagement = () => {
 
       {/* Filters and Search */}
       <div className="bg-white p-4 rounded-xl shadow-md mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Search */}
+        <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -191,7 +188,6 @@ const UserManagement = () => {
             </div>
           </div>
 
-          {/* Status Filter */}
           <div className="flex items-center gap-2">
             <Filter className="h-5 w-5 text-gray-400" />
             <select
@@ -208,8 +204,8 @@ const UserManagement = () => {
         </div>
       </div>
 
-      {/* Users Table */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      {/* Users Table for md+ screens */}
+      <div className="hidden md:block bg-white rounded-xl shadow-md overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -228,60 +224,74 @@ const UserManagement = () => {
                 </td>
               </tr>
             ) : (
-              filteredUsers.map((user) => (
+              filteredUsers.map(user => (
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
-                    <div>
-                      <p className="font-medium">{user.username}</p>
-                      <p className="text-sm text-gray-500">
-                        {user.firstName} {user.lastName}
-                      </p>
-                    </div>
+                    <p className="font-medium">{user.username}</p>
+                    <p className="text-sm text-gray-500">{user.firstName} {user.lastName}</p>
                   </td>
                   <td className="px-6 py-4">
                     <p className="text-sm">{user.email}</p>
                     <p className="text-sm text-gray-500">{user.phoneNumber}</p>
                   </td>
-                  <td className="px-6 py-4">
-                    {getStatusBadge(user.accountStatus)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => openDetailsModal(user)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                        title="View Details"
-                      >
-                        <Eye className="h-5 w-5" />
-                      </button>
-                      {user.accountStatus === 'PENDING' && (
-                        <>
-                          <button
-                            onClick={() => handleApprove(user.id)}
-                            className="p-2 text-green-600 hover:bg-green-50 rounded"
-                            title="Approve"
-                          >
-                            <CheckCircle className="h-5 w-5" />
-                          </button>
-                          <button
-                            onClick={() => openRejectModal(user)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded"
-                            title="Reject"
-                          >
-                            <XCircle className="h-5 w-5" />
-                          </button>
-                        </>
-                      )}
-                    </div>
+                  <td className="px-6 py-4">{getStatusBadge(user.accountStatus)}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{new Date(user.createdAt).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 flex gap-2">
+                    <button onClick={() => openDetailsModal(user)} className="p-2 text-blue-600 hover:bg-blue-50 rounded">
+                      <Eye className="h-5 w-5" />
+                    </button>
+                    {user.accountStatus === 'PENDING' && (
+                      <>
+                        <button onClick={() => handleApprove(user.id)} className="p-2 text-green-600 hover:bg-green-50 rounded">
+                          <CheckCircle className="h-5 w-5" />
+                        </button>
+                        <button onClick={() => openRejectModal(user)} className="p-2 text-red-600 hover:bg-red-50 rounded">
+                          <XCircle className="h-5 w-5" />
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Card Layout for sm screens */}
+      <div className="md:hidden flex flex-col gap-4">
+        {filteredUsers.length === 0 && (
+          <p className="text-center text-gray-500 py-4">No users found</p>
+        )}
+        {filteredUsers.map(user => (
+          <div key={user.id} className="bg-white p-4 rounded-xl shadow-md flex flex-col gap-2">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-medium">{user.username}</p>
+                <p className="text-sm text-gray-500">{user.firstName} {user.lastName}</p>
+              </div>
+              <div>{getStatusBadge(user.accountStatus)}</div>
+            </div>
+            <p className="text-sm">{user.email}</p>
+            <p className="text-sm text-gray-500">{user.phoneNumber}</p>
+            <p className="text-sm text-gray-600">Registered: {new Date(user.createdAt).toLocaleDateString()}</p>
+            <div className="flex gap-2 mt-2">
+              <button onClick={() => openDetailsModal(user)} className="flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded flex justify-center">
+                <Eye className="h-5 w-5" />
+              </button>
+              {user.accountStatus === 'PENDING' && (
+                <>
+                  <button onClick={() => handleApprove(user.id)} className="flex-1 p-2 text-green-600 hover:bg-green-50 rounded flex justify-center">
+                    <CheckCircle className="h-5 w-5" />
+                  </button>
+                  <button onClick={() => openRejectModal(user)} className="flex-1 p-2 text-red-600 hover:bg-red-50 rounded flex justify-center">
+                    <XCircle className="h-5 w-5" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Reject Modal */}
@@ -387,7 +397,7 @@ const UserManagement = () => {
               )}
             </div>
 
-            <div className="flex gap-4 mt-6">
+            <div className="flex gap-4 mt-6 flex-col sm:flex-row">
               {selectedUser.accountStatus === 'PENDING' && (
                 <>
                   <button
@@ -395,20 +405,18 @@ const UserManagement = () => {
                       setShowDetailsModal(false);
                       handleApprove(selectedUser.id);
                     }}
-                    className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center justify-center gap-2"
+                    className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
                   >
-                    <CheckCircle className="h-5 w-5" />
-                    Approve User
+                    Approve
                   </button>
                   <button
                     onClick={() => {
                       setShowDetailsModal(false);
                       openRejectModal(selectedUser);
                     }}
-                    className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center justify-center gap-2"
+                    className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
                   >
-                    <XCircle className="h-5 w-5" />
-                    Reject User
+                    Reject
                   </button>
                 </>
               )}
