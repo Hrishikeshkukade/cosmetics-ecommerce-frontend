@@ -43,6 +43,11 @@ export const productService = {
     return response.data;
   },
 
+    getProductsByCategoryForChat: async (categoryId) => {
+    const response = await api.get(`/products/category/${categoryId}`);
+    return response.data;
+  },
+
   getProductsByBrand: async (brandId, page = 0, size = 12) => {
     const response = await api.get(`/products/brand/${brandId}?page=${page}&size=${size}`);
     return response.data;

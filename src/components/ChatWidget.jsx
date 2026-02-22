@@ -323,7 +323,7 @@ const ChatbotWidget = () => {
                 onClick={() => {
                   addUserMessage(category.name);
                   setShowOptions(false);
-                  fetchProductsByCategory(category.name);
+                  fetchProductsByCategory(category.id);
                   setTimeout(() => setShowOptions(true), 1500);
                 }}
                 className="bg-gradient-to-r from-pink-500 to-rose-500 text-white p-3 rounded-lg hover:shadow-lg transition-all text-sm font-medium"
