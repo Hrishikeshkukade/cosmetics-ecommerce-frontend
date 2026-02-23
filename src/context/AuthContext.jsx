@@ -43,26 +43,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (userData) => {
-    try {
-      const data = await authService.register(userData);
+const register = async (userData) => {
+  try {
+    const data = await authService.register(userData);
 
-      if (data.approvalRequired) {
+    if (data.approvalRequired) {
       alert(data.message);
-      navigate('/login');
-      return;
+      return { success: true, approvalRequired: true }; // ← return properly, no navigate here
     }
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data));
-      setUser(data);
-      return { success: true };
-    } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.message || 'Registration failed' 
-      };
-    }
-  };
+
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data));
+    setUser(data);
+    return { success: true };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error.response?.data?.message || 'Registration failed' 
+    };
+  }
+};
 
   const logout = () => {
     localStorage.removeItem('token');

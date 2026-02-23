@@ -24,14 +24,26 @@ const Register = () => {
     setError('');
     setLoading(true);
 
-    const result = await register(formData);
-    
-    if (result.success) {
-      navigate('/');
-    } else {
-      setError(result.error);
-    }
-    
+  const result = await register(formData);
+
+if (result.success) {
+  if (result.approvalRequired) {
+    navigate('/login'); 
+  } else {
+    navigate('/');
+  }
+} else {
+  setError(result.error);
+}
+    setFormData({
+      username: '',
+      email: '',
+      password: '',
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+     
+    });
     setLoading(false);
   };
 
